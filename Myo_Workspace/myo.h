@@ -23,7 +23,7 @@ class myo
     void BATTNotify();
     void getAllData();
     
-    BLEAddress pAddress = BLEAddress("f9:64:aa:5e:d8:ef");
+    BLEAddress pAddress = BLEAddress("d4:68:7d:42:88:ef");
     BLEClient* pClient;
     
     int temp; 

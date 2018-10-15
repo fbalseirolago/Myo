@@ -1,1 +1,2 @@
-# Myo_ESP32
+# Myo
+Project based on ESP32 with Myo band

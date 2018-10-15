@@ -3,7 +3,8 @@
 #include "myo.h"
 
 void myo::getMyoInfo() {
-  if(myo::connected && !myo::getMyoInfoDone) {
+  if (myo::connected && !myo::getMyoInfoDone) {
+    //Get
     BLEUUID tservice = BLEUUID("d5060001-a904-deb9-4748-2c7f4a124842");
     BLEUUID tcharacteristic = BLEUUID("d5060101-a904-deb9-4748-2c7f4a124842");
     std::string stringt;
@@ -30,11 +31,11 @@ void myo::getMyoInfo() {
     myo::fw_reserved[6]             = stringt[20];
     myo::fw_reserved[7]             = stringt[21];
     myo::getMyoInfoDone             = true;
- }
+  }
 }
 
 void myo::getFirmwareVersion() {
-  if(myo::connected && !myo::getFirmwareVersionDone) {
+  if (myo::connected && !myo::getFirmwareVersionDone) {
     BLEUUID tservice = BLEUUID("d5060001-a904-deb9-4748-2c7f4a124842");
     BLEUUID tcharacteristic = BLEUUID("d5060201-a904-deb9-4748-2c7f4a124842");
     std::string stringt;
@@ -42,25 +43,30 @@ void myo::getFirmwareVersion() {
     myo::fw_major               = (byte)stringt[1] * 256 + (byte)stringt[0];
     myo::fw_minor               = (byte)stringt[3] * 256 + (byte)stringt[2];
     myo::fw_patch               = (byte)stringt[5] * 256 + (byte)stringt[4];
-    myo::fw_hardware_rev        = (byte)stringt[7] * 256 + (byte)stringt[6];  
+    myo::fw_hardware_rev        = (byte)stringt[7] * 256 + (byte)stringt[6];
     myo::getFirmwareVersionDone = true;
- } 
+  }
 }
 
 void myo::connect() {
-  if(!myo::connected) {
+  if (!myo::connected) {
     BLEDevice::init("");
-    BLEScan* pBLEScan = BLEDevice::getScan(); //create new scan
-    pBLEScan->setActiveScan(true); //active scan uses more power, but get results faster
+    //Creates new scan object
+    BLEScan* pBLEScan = BLEDevice::getScan();
+    //Active scan uses more power, but get results faster. We wish a scan response
+    pBLEScan->setActiveScan(true);
+    //Duration of the scan in seconds
     pBLEScan->start(10);
+    //Creation of client structure
     myo::pClient = BLEDevice::createClient();
+    //Connect to MAC address set in myo::pAddress in file myo.h
     myo::pClient->connect(myo::pAddress);
     myo::connected = true;
   }
 }
 
 void myo::EMGNotify() {
-  if(myo::connected && !myo::EMGNotifyDone) {
+  if (myo::connected && !myo::EMGNotifyDone) {
     BLEUUID tservice = BLEUUID("d5060005-a904-deb9-4748-2c7f4a124842");
     BLEUUID tcharacteristic0 = BLEUUID("d5060105-a904-deb9-4748-2c7f4a124842");
     BLEUUID tcharacteristic1 = BLEUUID("d5060205-a904-deb9-4748-2c7f4a124842");
@@ -76,7 +82,7 @@ void myo::EMGNotify() {
 }
 
 void myo::IMUNotify() {
-  if(myo::connected  && !myo::IMUNotifyDone) {
+  if (myo::connected  && !myo::IMUNotifyDone) {
     BLEUUID tservice = BLEUUID("d5060002-a904-deb9-4748-2c7f4a124842");
     BLEUUID tcharacteristic = BLEUUID("d5060402-a904-deb9-4748-2c7f4a124842");
     uint8_t NotifyOn[] = {0x01};
@@ -86,7 +92,7 @@ void myo::IMUNotify() {
 }
 
 void myo::BATTNotify() {
-  if(myo::connected && !myo::BATTNotifyDone) {
+  if (myo::connected && !myo::BATTNotifyDone) {
     BLEUUID tservice = BLEUUID("0000180f-0000-1000-8000-00805f9b34fb");
     BLEUUID tcharacteristic = BLEUUID("00002a19-0000-1000-8000-00805f9b34fb");
     uint8_t NotifyOn[] = {0x01};
@@ -96,7 +102,7 @@ void myo::BATTNotify() {
 }
 
 void myo::getAllData() {
-  if(myo::connected && !myo::getAllDataDone) {
+  if (myo::connected && !myo::getAllDataDone) {
     BLEUUID tservice = BLEUUID("d5060001-a904-deb9-4748-2c7f4a124842");
     BLEUUID tcharacteristic = BLEUUID("d5060401-a904-deb9-4748-2c7f4a124842");
     uint8_t writeVal[] = {0x01, 0x03, 0x02, 0x00, 0x01};
@@ -104,5 +110,3 @@ void myo::getAllData() {
     myo::getAllDataDone = true;
   }
 }
-
-

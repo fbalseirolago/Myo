@@ -18,6 +18,7 @@ void notifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic, uint8_t* 
 
 void notifyCallback0(BLERemoteCharacteristic* pBLERemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify) {
   int k;
+  Serial.print("Enters");
   for(k=0; k<=length; k++) {
     Serial.print("0Value ");
     Serial.print(k);
@@ -33,15 +34,21 @@ void setup()
 
 void loop()
 {
+  //Connect to device
   myo.connect();
+  
   myo.getAllData();
   if(!FirstTime) {
-    myo.pClient->getService(BLEUUID("0000180f-0000-1000-8000-00805f9b34fb"))->getCharacteristic(BLEUUID("00002a19-0000-1000-8000-00805f9b34fb"))->registerForNotify(notifyCallback); 
-    //myo.pClient->getService(BLEUUID("d5060005-a904-deb9-4748-2c7f4a124842"))->getCharacteristic(BLEUUID("d5060105-a904-deb9-4748-2c7f4a124842"))->registerForNotify(notifyCallback0); 
+    //Registers function notifyCallBack for execution when characteristic arrives
+    //myo.pClient->getService(BLEUUID("0000180f-0000-1000-8000-00805f9b34fb"))->getCharacteristic(BLEUUID("00002a19-0000-1000-8000-00805f9b34fb"))->registerForNotify(notifyCallback); 
+    //EMG myo.pClient->getService(BLEUUID("d5060005-a904-deb9-4748-2c7f4a124842"))->getCharacteristic(BLEUUID("d5060105-a904-deb9-4748-2c7f4a124842"))->registerForNotify(notifyCallback0); 
+    //myo.pClient->getService(BLEUUID("d5060001-a904-deb9-4748-2c7f4a124842"))->getCharacteristic(BLEUUID("d5060401-a904-deb9-4748-2c7f4a124842"))->writeValue(0x03);
+    //myo.pClient->getService(BLEUUID("d5060002-a904-deb9-4748-2c7f4a124842"))->getCharacteristic(BLEUUID("d5060402-a904-deb9-4748-2c7f4a124842"))->registerForNotify(notifyCallback0); 
     FirstTime = 1;     
   }  
   //myo.EMGNotify();
-  myo.BATTNotify();
+  //myo.BATTNotify();
+  //myo.IMUNotify();
   /*
   if(myo.connected && myo.initDo) {
     myo.getFirmwareVersion();
@@ -53,7 +60,7 @@ void loop()
     
     myo.initDo = false;
   }
-  */
+  
   /*
   if(myo.connected && myo.initDo) {
     myo.getMyoInfo();
@@ -85,4 +92,5 @@ void loop()
   */
   //Serial.println("...");
   delay(1000);
+  myo.pClient->getService(BLEUUID("d5060001-a904-deb9-4748-2c7f4a124842"))->getCharacteristic(BLEUUID("d5060401-a904-deb9-4748-2c7f4a124842"))->writeValue(0x03);
 }
