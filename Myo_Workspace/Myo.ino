@@ -11,20 +11,40 @@ myo myo;
 
 bool FirstTime = 0;
 
-void notifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify) {
-  Serial.print("Battery: ");
-  Serial.println(pData[0]);
-}
+void notifyCallbackEMG01(BLERemoteCharacteristic* pBLERemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify) {
+  int indexData;
 
-void notifyCallback0(BLERemoteCharacteristic* pBLERemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify) {
-  int k;
-  Serial.print("Enters");
-  for(k=0; k<=length; k++) {
-    Serial.print("0Value ");
-    Serial.print(k);
-    Serial.print(" : ");
-    Serial.println(pData[k]);
+  //Stores data Sample 1 values
+  int8_t dataSample1[8];
+  //Stores data Sample 2 values
+  int8_t dataSample2[8];
+
+  //Pointer to store data in array 1 or 2
+  int8_t *arrayPointer;
+  
+  arrayPointer=  dataSample1;
+  Serial.print("Sensors reading:  ");
+  Serial.print("First Sample: ");
+  for(indexData=0; indexData<length; indexData++) 
+  {
+    arrayPointer[indexData%8] = (int8_t) pData[indexData];
+    if (indexData==8)
+    {
+      arrayPointer =  dataSample2;
+      Serial.println("");
+      Serial.print("Sensors reading:  ");
+      Serial.print("Second Sample: ");
+    }
+    Serial.print(indexData);
+    Serial.print(": ");
+    Serial.print(arrayPointer[indexData%8]);
+    Serial.print(" ");
   }
+  Serial.println("");
+  Serial.print("  Finnished sensor reading with number : ");
+  Serial.println(indexData);
+  Serial.println("");
+  Serial.println("");
 }
 
 void setup()
@@ -34,63 +54,33 @@ void setup()
 
 void loop()
 {
+  static bool myoConnected = 0;
   //Connect to device
   myo.connect();
   
-  myo.getAllData();
   if(!FirstTime) {
-    //Registers function notifyCallBack for execution when characteristic arrives
-    //myo.pClient->getService(BLEUUID("0000180f-0000-1000-8000-00805f9b34fb"))->getCharacteristic(BLEUUID("00002a19-0000-1000-8000-00805f9b34fb"))->registerForNotify(notifyCallback); 
-    //EMG myo.pClient->getService(BLEUUID("d5060005-a904-deb9-4748-2c7f4a124842"))->getCharacteristic(BLEUUID("d5060105-a904-deb9-4748-2c7f4a124842"))->registerForNotify(notifyCallback0); 
-    //myo.pClient->getService(BLEUUID("d5060001-a904-deb9-4748-2c7f4a124842"))->getCharacteristic(BLEUUID("d5060401-a904-deb9-4748-2c7f4a124842"))->writeValue(0x03);
-    //myo.pClient->getService(BLEUUID("d5060002-a904-deb9-4748-2c7f4a124842"))->getCharacteristic(BLEUUID("d5060402-a904-deb9-4748-2c7f4a124842"))->registerForNotify(notifyCallback0); 
+
+    //Set Notification Function Emg0Data    
+    myo.pClient->getService(BLEUUID("d5060005-a904-deb9-4748-2c7f4a124842"))->getCharacteristic(BLEUUID("d5060105-a904-deb9-4748-2c7f4a124842"))->registerForNotify(notifyCallbackEMG01); 
     FirstTime = 1;     
   }  
-  //myo.EMGNotify();
-  //myo.BATTNotify();
-  //myo.IMUNotify();
-  /*
-  if(myo.connected && myo.initDo) {
-    myo.getFirmwareVersion();
 
-    Serial.println(myo.fw_major);
-    Serial.println(myo.fw_minor);
-    Serial.println(myo.fw_patch);
-    Serial.println(myo.fw_hardware_rev);
+  if ((myo.connected) && (myoConnected == 0))
+  {
+    //Set modes on Myo: 0x01 command, 0x03 payload size, 0x02 emg mode 0x00 imu no data and 0x00 no pose indication
+    uint8_t writeVal[] = {0x01, 0x03, 0x02, 0x00, 0x00};
+    uint8_t NotifyOn = 0x01;
     
-    myo.initDo = false;
+    //Write mode on Myo
+    myo.pClient->getService(BLEUUID("d5060001-a904-deb9-4748-2c7f4a124842"))->getCharacteristic(BLEUUID("d5060401-a904-deb9-4748-2c7f4a124842"))->writeValue(writeVal, sizeof(writeVal)); 
+    
+    //Once connected, configure characterisitc to notification
+    myo.pClient->getService(BLEUUID("d5060005-a904-deb9-4748-2c7f4a124842"))->getCharacteristic(BLEUUID("d5060105-a904-deb9-4748-2c7f4a124842"))->getDescriptor((uint16_t) 0x2902)->writeValue(NotifyOn, sizeof(NotifyOn));
+    Serial.print("Connected to Myo");
+    myoConnected = 1;
   }
-  
-  /*
-  if(myo.connected && myo.initDo) {
-    myo.getMyoInfo();
 
-    Serial.print(myo.fw_serial_number[0]);
-    Serial.print(myo.fw_serial_number[1]);
-    Serial.print(myo.fw_serial_number[2]);
-    Serial.print(myo.fw_serial_number[3]);
-    Serial.print(myo.fw_serial_number[4]);
-    Serial.print(myo.fw_serial_number[5]);
-    Serial.println(myo.fw_serial_number[6]);
-    Serial.println(myo.fw_unlock_pose);
-    Serial.println(myo.fw_active_classifier_type);
-    Serial.println(myo.fw_active_classifier_index);
-    Serial.println(myo.fw_has_custom_classifier);
-    Serial.println(myo.fw_stream_indicating);
-    Serial.println(myo.fw_sku);
-    Serial.print(myo.fw_reserved[0]);
-    Serial.print(myo.fw_reserved[1]);
-    Serial.print(myo.fw_reserved[2]);
-    Serial.print(myo.fw_reserved[3]);
-    Serial.print(myo.fw_reserved[4]);
-    Serial.print(myo.fw_reserved[5]);
-    Serial.print(myo.fw_reserved[6]);
-    Serial.println(myo.fw_reserved[7]);
-    
-    myo.initDo = false;
-  }
-  */
-  //Serial.println("...");
   delay(1000);
-  myo.pClient->getService(BLEUUID("d5060001-a904-deb9-4748-2c7f4a124842"))->getCharacteristic(BLEUUID("d5060401-a904-deb9-4748-2c7f4a124842"))->writeValue(0x03);
+  //Vibrate myo
+  //myo.pClient->getService(BLEUUID("d5060001-a904-deb9-4748-2c7f4a124842"))->getCharacteristic(BLEUUID("d5060401-a904-deb9-4748-2c7f4a124842"))->writeValue(0x03);
 }
