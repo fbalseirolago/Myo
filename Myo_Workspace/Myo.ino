@@ -111,18 +111,18 @@ void loop()
 {
   static bool myoConnected = 0;
   //Connect to device
-  myo.connect();
+  //myo.connect();
   
   if(!FirstTime) {
 
     //Set Notification Function Emg0Data    
-    myo.pClient->getService(BLEUUID(EMG_UUID_SERVICE))->getCharacteristic(BLEUUID(EMG0_UUID_CHARACTERISTIC))->registerForNotify(notifyCallbackEMG0);
+    //myo.pClient->getService(BLEUUID(EMG_UUID_SERVICE))->getCharacteristic(BLEUUID(EMG0_UUID_CHARACTERISTIC))->registerForNotify(notifyCallbackEMG0);
     //Set Notification Function Emg1Data
-    myo.pClient->getService(BLEUUID(EMG_UUID_SERVICE))->getCharacteristic(BLEUUID(EMG1_UUID_CHARACTERISTIC))->registerForNotify(notifyCallbackEMG1); 
+    //myo.pClient->getService(BLEUUID(EMG_UUID_SERVICE))->getCharacteristic(BLEUUID(EMG1_UUID_CHARACTERISTIC))->registerForNotify(notifyCallbackEMG1); 
     //Set Notification Function Emg2Data
-    myo.pClient->getService(BLEUUID(EMG_UUID_SERVICE))->getCharacteristic(BLEUUID(EMG2_UUID_CHARACTERISTIC))->registerForNotify(notifyCallbackEMG2);
+    //myo.pClient->getService(BLEUUID(EMG_UUID_SERVICE))->getCharacteristic(BLEUUID(EMG2_UUID_CHARACTERISTIC))->registerForNotify(notifyCallbackEMG2);
     //Set Notification Function Emg3Data
-    myo.pClient->getService(BLEUUID(EMG_UUID_SERVICE))->getCharacteristic(BLEUUID(EMG3_UUID_CHARACTERISTIC))->registerForNotify(notifyCallbackEMG3);
+    //myo.pClient->getService(BLEUUID(EMG_UUID_SERVICE))->getCharacteristic(BLEUUID(EMG3_UUID_CHARACTERISTIC))->registerForNotify(notifyCallbackEMG3);
     
     //Set Notification Function IMU data
     //myo.pClient->getService(BLEUUID(IMU_UUID_SERVICE))->getCharacteristic(BLEUUID(IMU_UUID_CHARACTERISTIC))->registerForNotify(notifyCallbackIMU);
@@ -130,7 +130,7 @@ void loop()
     FirstTime = 1;     
   }  
 
-  if ((myo.connected) && (myoConnected == 0))
+  /*if ((myo.connected) && (myoConnected == 0))
   {
     //Set modes on Myo: 0x01 command, 0x03 payload size, 0x02 emg mode 0x01 imu no data and 0x00 no pose indication
     uint8_t writeVal[] = {0x01, 0x03, 0x02, 0x01, 0x00};
@@ -138,7 +138,7 @@ void loop()
     uint8_t NotifyOn = 0x01;
     //Set sleep mode
     uint8_t sleepModeVal[] = {0x09, 0x01, 0x01};
-
+    /*
     Serial.println("Connected to Myo");
     Serial.println("");
 
@@ -156,6 +156,7 @@ void loop()
     myo.pClient->getService(BLEUUID(EMG_UUID_SERVICE))->getCharacteristic(BLEUUID(EMG0_UUID_CHARACTERISTIC))->getDescriptor((uint16_t) 0x2902)->writeValue(NotifyOn, sizeof(NotifyOn));
     delay(1000);
     Serial.println("EMG0 filtered data notification configured");
+    /*
     myo.pClient->getService(BLEUUID(EMG_UUID_SERVICE))->getCharacteristic(BLEUUID(EMG1_UUID_CHARACTERISTIC))->getDescriptor((uint16_t) 0x2902)->writeValue(NotifyOn, sizeof(NotifyOn));
     delay(1000);
     Serial.println("EMG1 filtered data notification configured");
@@ -173,7 +174,7 @@ void loop()
     Serial.println("IMU data notification configured");
     delay(1000);
     */
-
+   /*
     Serial.println("");
     Serial.println("");
     Serial.println("**********************************************");
@@ -181,32 +182,12 @@ void loop()
     Serial.println("**********************************************");
 
     delay(3000);
+    */
+    //myoConnected = 1;
+  //}
 
-    myoConnected = 1;
-  }
-
-  Serial.println("");
-  Serial.println("");
-
-  Serial.print("EMG0 information: Times entered:  ");
-  Serial.print(timeEntered1);
-  Serial.print("  Sensor Data 1 position:  ");
-  Serial.println(emgSample1[0]);
-
-  Serial.print("EMG1 information: Times entered:  ");
-  Serial.print(timeEntered2);
-  Serial.print("  Sensor Data 1 position:  ");
-  Serial.println(emgSample3[0]);
-
-  Serial.print("EMG2 information: Times entered:  ");
-  Serial.print(timeEntered3);
-  Serial.print("  Sensor Data 1 position:  ");
-  Serial.println(emgSample5[0]);
-
-  Serial.print("EMG3 information: Times entered:  ");
-  Serial.print(timeEntered4);
-  Serial.print("  Sensor Data 1 position:  ");
-  Serial.println(emgSample7[0]);
+  timeEntered1 += 1;
+  Serial.println(timeEntered1);
 
   /*IMU: Print accelerometer data
   Serial.print("Acc information: Times entered:  ");
@@ -219,8 +200,7 @@ void loop()
   Serial.print(accData[2]);
   Serial.println(" ]");
   */
-  Serial.println("");
-  Serial.println("");
 
-  delay(1000);
+  delay(50);
 }
+ 
