@@ -27,15 +27,12 @@ while numberOfSamples< endSample
         %(prevents possible overflows)
         flushinput(serialPort);
         
-        %tic
         %Reads the data from the input buffer
-        dataRead = fscanf(serialPort,'%d',[1 1])
-        %toc
+        dataRead = fscanf(serialPort,'%d',[1 1]);
         
         %Array which stores all the emg data
         emgData(numberOfSamples) = dataRead;
         
-        %tic
         plot(emgData(1:numberOfSamples));
         
         if (numberOfSamples < 125)
@@ -44,12 +41,11 @@ while numberOfSamples< endSample
           startSample = numberOfSamples-125;
         end
         
-        axis([ startSample, startSample+150, 0 , 255 ]);
+        axis([ startSample, startSample+150, -50 , 50 ]);
         
         numberOfSamples=numberOfSamples+1;
         
         drawnow
-        %toc 
     end
     nextSampleTime=toc;
 end

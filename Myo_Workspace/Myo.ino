@@ -111,12 +111,12 @@ void loop()
 {
   static bool myoConnected = 0;
   //Connect to device
-  //myo.connect();
+  myo.connect();
   
   if(!FirstTime) {
 
     //Set Notification Function Emg0Data    
-    //myo.pClient->getService(BLEUUID(EMG_UUID_SERVICE))->getCharacteristic(BLEUUID(EMG0_UUID_CHARACTERISTIC))->registerForNotify(notifyCallbackEMG0);
+    myo.pClient->getService(BLEUUID(EMG_UUID_SERVICE))->getCharacteristic(BLEUUID(EMG0_UUID_CHARACTERISTIC))->registerForNotify(notifyCallbackEMG0);
     //Set Notification Function Emg1Data
     //myo.pClient->getService(BLEUUID(EMG_UUID_SERVICE))->getCharacteristic(BLEUUID(EMG1_UUID_CHARACTERISTIC))->registerForNotify(notifyCallbackEMG1); 
     //Set Notification Function Emg2Data
@@ -130,7 +130,7 @@ void loop()
     FirstTime = 1;     
   }  
 
-  /*if ((myo.connected) && (myoConnected == 0))
+  if ((myo.connected) && (myoConnected == 0))
   {
     //Set modes on Myo: 0x01 command, 0x03 payload size, 0x02 emg mode 0x01 imu no data and 0x00 no pose indication
     uint8_t writeVal[] = {0x01, 0x03, 0x02, 0x01, 0x00};
@@ -138,24 +138,21 @@ void loop()
     uint8_t NotifyOn = 0x01;
     //Set sleep mode
     uint8_t sleepModeVal[] = {0x09, 0x01, 0x01};
-    /*
-    Serial.println("Connected to Myo");
-    Serial.println("");
+    //Set Vibration
+    uint8_t vibrationMode[] = {0x03, 0x01, 0x02};
 
     //Set to never sleep
     myo.pClient->getService(BLEUUID(CONTROL_UUID_SERVICE))->getCharacteristic(BLEUUID(COMMAND_UUID_CHARACTERISTIC))->writeValue(sleepModeVal, sizeof(sleepModeVal));
     delay(1000);
-    Serial.println("Never Sleep configuration established");
 
     //Write EMG mode on Myo
     myo.pClient->getService(BLEUUID(CONTROL_UUID_SERVICE))->getCharacteristic(BLEUUID(COMMAND_UUID_CHARACTERISTIC))->writeValue(writeVal, sizeof(writeVal)); 
     delay(1000);
-    Serial.println("EMG filtered only mode established");
     
     //Once mode is set, configure characterisitc to notification
     myo.pClient->getService(BLEUUID(EMG_UUID_SERVICE))->getCharacteristic(BLEUUID(EMG0_UUID_CHARACTERISTIC))->getDescriptor((uint16_t) 0x2902)->writeValue(NotifyOn, sizeof(NotifyOn));
     delay(1000);
-    Serial.println("EMG0 filtered data notification configured");
+
     /*
     myo.pClient->getService(BLEUUID(EMG_UUID_SERVICE))->getCharacteristic(BLEUUID(EMG1_UUID_CHARACTERISTIC))->getDescriptor((uint16_t) 0x2902)->writeValue(NotifyOn, sizeof(NotifyOn));
     delay(1000);
@@ -183,11 +180,13 @@ void loop()
 
     delay(3000);
     */
-    //myoConnected = 1;
-  //}
-
-  timeEntered1 += 1;
-  Serial.println(timeEntered1);
+    myoConnected = 1;
+    
+    myo.pClient->getService(BLEUUID(CONTROL_UUID_SERVICE))->getCharacteristic(BLEUUID(COMMAND_UUID_CHARACTERISTIC))->writeValue(vibrationMode,sizeof(vibrationMode));
+    delay(500);
+  }
+  
+  Serial.println(emgSample1[3]);
 
   /*IMU: Print accelerometer data
   Serial.print("Acc information: Times entered:  ");
