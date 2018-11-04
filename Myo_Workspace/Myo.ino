@@ -16,40 +16,13 @@ bool FirstTime = 0;
 int8_t emgSample1[8];
 //Stores data Sample 2 values
 int8_t emgSample2[8];
-//Stores data Sample 3 values
-int8_t emgSample3[8];
-//Stores data Sample 4 values
-int8_t emgSample4[8];
-//Stores data Sample 5 values
-int8_t emgSample5[8];
-//Stores data Sample 6 values
-int8_t emgSample6[8];
-//Stores data Sample 7 values
-int8_t emgSample7[8];
-//Stores data Sample 8 values
-int8_t emgSample8[8];
 
-size_t lengthImuData=0;
-
-float_t accData[3]={0};
 
 uint8_t timeEntered1=0;
 uint8_t timeEntered2=0;
 uint8_t timeEntered3=0;
 uint8_t timeEntered4=0;
 uint8_t timeEntered5=0;
-
-int16_t convertUint8toInt16 (uint8_t leastSignificantByte, uint8_t mostSignificantByte )
-{
-  int16_t retVal=0;
-  int16_t aux=0;
-
-  aux= mostSignificantByte << 8; 
-
-  retVal = aux | leastSignificantByte;
-
-  return retVal;
-}
 
 void notifyCallbackGeneric(uint8_t* pData, size_t length, int8_t * firstSample, int8_t *secondSample)
 {
@@ -75,33 +48,6 @@ void notifyCallbackEMG0(BLERemoteCharacteristic* pBLERemoteCharacteristic, uint8
   timeEntered1 += 1;
 }
 
-void notifyCallbackEMG1(BLERemoteCharacteristic* pBLERemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify) 
-{
-  notifyCallbackGeneric(pData,length,emgSample3,emgSample4); 
-  timeEntered2 += 1;
-}
-
-void notifyCallbackEMG2(BLERemoteCharacteristic* pBLERemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify) 
-{
-  notifyCallbackGeneric(pData,length,emgSample5,emgSample6);
-  timeEntered3 += 1;
-}
-
-void notifyCallbackEMG3(BLERemoteCharacteristic* pBLERemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify) 
-{
-  notifyCallbackGeneric(pData,length,emgSample7,emgSample8);
-  timeEntered4 += 1;
-}
-
-/*
-void notifyCallbackIMU(BLERemoteCharacteristic* pBLERemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify) 
-{
-  accData[0] = (float_t) (convertUint8toInt16(*(pData + 8), *(pData + 9)))/2048;
-  accData[1] = (float_t) (convertUint8toInt16(*(pData + 10), *(pData + 11)))/2048;
-  accData[2] = (float_t) (convertUint8toInt16(*(pData + 12), *(pData + 13)))/2048;
-  timeEntered5 += 1;
-}
-*/
 void setup()
 {
   Serial.begin(115200);
@@ -117,15 +63,6 @@ void loop()
 
     //Set Notification Function Emg0Data    
     myo.pClient->getService(BLEUUID(EMG_UUID_SERVICE))->getCharacteristic(BLEUUID(EMG0_UUID_CHARACTERISTIC))->registerForNotify(notifyCallbackEMG0);
-    //Set Notification Function Emg1Data
-    //myo.pClient->getService(BLEUUID(EMG_UUID_SERVICE))->getCharacteristic(BLEUUID(EMG1_UUID_CHARACTERISTIC))->registerForNotify(notifyCallbackEMG1); 
-    //Set Notification Function Emg2Data
-    //myo.pClient->getService(BLEUUID(EMG_UUID_SERVICE))->getCharacteristic(BLEUUID(EMG2_UUID_CHARACTERISTIC))->registerForNotify(notifyCallbackEMG2);
-    //Set Notification Function Emg3Data
-    //myo.pClient->getService(BLEUUID(EMG_UUID_SERVICE))->getCharacteristic(BLEUUID(EMG3_UUID_CHARACTERISTIC))->registerForNotify(notifyCallbackEMG3);
-    
-    //Set Notification Function IMU data
-    //myo.pClient->getService(BLEUUID(IMU_UUID_SERVICE))->getCharacteristic(BLEUUID(IMU_UUID_CHARACTERISTIC))->registerForNotify(notifyCallbackIMU);
     
     FirstTime = 1;     
   }  
@@ -140,7 +77,7 @@ void loop()
     uint8_t sleepModeVal[] = {0x09, 0x01, 0x01};
     //Set Vibration
     uint8_t vibrationMode[] = {0x03, 0x01, 0x02};
-
+    uint8_t noVibrationMode[] = {0x03, 0x01, 0x00};
     //Set to never sleep
     myo.pClient->getService(BLEUUID(CONTROL_UUID_SERVICE))->getCharacteristic(BLEUUID(COMMAND_UUID_CHARACTERISTIC))->writeValue(sleepModeVal, sizeof(sleepModeVal));
     delay(1000);
@@ -153,52 +90,31 @@ void loop()
     myo.pClient->getService(BLEUUID(EMG_UUID_SERVICE))->getCharacteristic(BLEUUID(EMG0_UUID_CHARACTERISTIC))->getDescriptor((uint16_t) 0x2902)->writeValue(NotifyOn, sizeof(NotifyOn));
     delay(1000);
 
-    /*
-    myo.pClient->getService(BLEUUID(EMG_UUID_SERVICE))->getCharacteristic(BLEUUID(EMG1_UUID_CHARACTERISTIC))->getDescriptor((uint16_t) 0x2902)->writeValue(NotifyOn, sizeof(NotifyOn));
-    delay(1000);
-    Serial.println("EMG1 filtered data notification configured");
-    myo.pClient->getService(BLEUUID(EMG_UUID_SERVICE))->getCharacteristic(BLEUUID(EMG2_UUID_CHARACTERISTIC))->getDescriptor((uint16_t) 0x2902)->writeValue(NotifyOn, sizeof(NotifyOn));
-    delay(1000);
-    Serial.println("EMG2 filtered data notification configured");
-    myo.pClient->getService(BLEUUID(EMG_UUID_SERVICE))->getCharacteristic(BLEUUID(EMG3_UUID_CHARACTERISTIC))->getDescriptor((uint16_t) 0x2902)->writeValue(NotifyOn, sizeof(NotifyOn));
-    delay(1000);
-    Serial.println("EMG3 filtered data notification configured");
-    delay(1000);
-
-    /* IMU Data accelerometer: not needed at moment
-    myo.pClient->getService(BLEUUID(IMU_UUID_SERVICE))->getCharacteristic(BLEUUID(IMU_UUID_CHARACTERISTIC))->getDescriptor((uint16_t) 0x2902)->writeValue(NotifyOn, sizeof(NotifyOn));
-    delay(1000);
-    Serial.println("IMU data notification configured");
-    delay(1000);
-    */
-   /*
-    Serial.println("");
-    Serial.println("");
-    Serial.println("**********************************************");
-    Serial.println("*   CONFIG FINNISHED - STARTING PROGRAM...   *");
-    Serial.println("**********************************************");
-
-    delay(3000);
-    */
     myoConnected = 1;
-    
+
+    //Vibrate to indicate configuration is finnished
     myo.pClient->getService(BLEUUID(CONTROL_UUID_SERVICE))->getCharacteristic(BLEUUID(COMMAND_UUID_CHARACTERISTIC))->writeValue(vibrationMode,sizeof(vibrationMode));
-    delay(500);
+    delay(1000);
+    //En vibration mode
+    myo.pClient->getService(BLEUUID(CONTROL_UUID_SERVICE))->getCharacteristic(BLEUUID(COMMAND_UUID_CHARACTERISTIC))->writeValue(noVibrationMode,sizeof(noVibrationMode));
+    delay(1000);
   }
   
-  Serial.println(emgSample1[3]);
-
-  /*IMU: Print accelerometer data
-  Serial.print("Acc information: Times entered:  ");
-  Serial.print(timeEntered5);
-  Serial.print("  Sensor Data [X Y Z] position: [");
-  Serial.print(accData[0]);
-  Serial.print("  ");
-  Serial.print(accData[1]);
-  Serial.print("  ");
-  Serial.print(accData[2]);
-  Serial.println(" ]");
-  */
+  Serial.print(emgSample1[0]);
+  Serial.print("\t");
+  Serial.print(emgSample1[1]);
+  Serial.print("\t");
+  Serial.print(emgSample1[2]);
+  Serial.print("\t");
+  Serial.print(emgSample1[3]);
+  Serial.print("\t");
+  Serial.print(emgSample1[4]);
+  Serial.print("\t");
+  Serial.print(emgSample1[5]);
+  Serial.print("\t");
+  Serial.print(emgSample1[6]);
+  Serial.print("\t");
+  Serial.println(emgSample1[7]);
 
   delay(50);
 }
